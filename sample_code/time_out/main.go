@@ -9,22 +9,23 @@ import (
 )
 
 func main() {
-	result, err := timeLimit()
+	result, err := timeLimit(doSomeWork, 2*time.Second)
 	fmt.Println(result, err)
 }
 
-func timeLimit() (int, error) {
-	out := make(chan int)
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+func timeLimit[T any](worker func() T, limit time.Duration) (T, error) {
+	out := make(chan T, 1)
+	ctx, cancel := context.WithTimeout(context.Background(), limit)
 	defer cancel()
 	go func() {
-		out <- doSomeWork()
+		out <- worker()
 	}()
 	select {
 	case result := <-out:
 		return result, nil
 	case <-ctx.Done():
-		return 0, errors.New("work timed out")
+		var zero T
+		return zero, errors.New("work timed out")
 	}
 }
 

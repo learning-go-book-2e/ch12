@@ -2,19 +2,19 @@ package main
 
 import "context"
 
-type CProcessor struct {
+type cProcessor struct {
 	outC chan COut
 	errs chan error
 }
 
-func NewCProcessor() *CProcessor {
-	return &CProcessor{
+func newCProcessor() *cProcessor {
+	return &cProcessor{
 		outC: make(chan COut, 1),
 		errs: make(chan error, 1),
 	}
 }
 
-func (p *CProcessor) start(ctx context.Context, inputC CIn) {
+func (p *cProcessor) start(ctx context.Context, inputC cIn) {
 	go func() {
 		cOut, err := getResultC(ctx, inputC)
 		if err != nil {
@@ -25,11 +25,11 @@ func (p *CProcessor) start(ctx context.Context, inputC CIn) {
 	}()
 }
 
-func getResultC(ctx context.Context, c CIn) (COut, error) {
+func getResultC(ctx context.Context, c cIn) (COut, error) {
 	return COut{}, nil
 }
 
-func (p *CProcessor) wait(ctx context.Context) (COut, error) {
+func (p *cProcessor) wait(ctx context.Context) (COut, error) {
 	select {
 	case out := <-p.outC:
 		return out, nil

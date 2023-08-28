@@ -8,15 +8,14 @@ import (
 func countTo(ctx context.Context, max int) <-chan int {
 	ch := make(chan int)
 	go func() {
-	loop:
+		defer close(ch)
 		for i := 0; i < max; i++ {
 			select {
 			case <-ctx.Done():
-				break loop
+				return
 			case ch <- i:
 			}
 		}
-		close(ch)
 	}()
 	return ch
 }

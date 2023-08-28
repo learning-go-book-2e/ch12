@@ -8,13 +8,13 @@ func main() {
 	ch1 := make(chan int)
 	ch2 := make(chan int)
 	go func() {
-		v := 1
-		ch1 <- v
-		v2 := <-ch2
-		fmt.Println(v, v2)
+		inGoroutine := 1
+		ch1 <- inGoroutine
+		fromMain := <-ch2
+		fmt.Println("goroutine:", inGoroutine, fromMain)
 	}()
-	v := 2
-	ch2 <- v
-	v2 := <-ch1
-	fmt.Println(v, v2)
+	inMain := 2
+	ch2 <- inMain
+	fromGoroutine := <-ch1
+	fmt.Println("main:", inMain, fromGoroutine)
 }

@@ -2,21 +2,21 @@ package main
 
 import "context"
 
-type ABProcessor struct {
-	outA chan AOut
-	outB chan BOut
+type abProcessor struct {
+	outA chan aOut
+	outB chan bOut
 	errs chan error
 }
 
-func NewABProcessor() *ABProcessor {
-	return &ABProcessor{
-		outA: make(chan AOut, 1),
-		outB: make(chan BOut, 1),
+func newABProcessor() *abProcessor {
+	return &abProcessor{
+		outA: make(chan aOut, 1),
+		outB: make(chan bOut, 1),
 		errs: make(chan error, 2),
 	}
 }
 
-func (p *ABProcessor) start(ctx context.Context, data Input) {
+func (p *abProcessor) start(ctx context.Context, data Input) {
 	go func() {
 		aOut, err := getResultA(ctx, data.A)
 		if err != nil {
@@ -35,38 +35,38 @@ func (p *ABProcessor) start(ctx context.Context, data Input) {
 	}()
 }
 
-func (p *ABProcessor) wait(ctx context.Context) (CIn, error) {
-	var inputC CIn
+func (p *abProcessor) wait(ctx context.Context) (cIn, error) {
+	var cData cIn
 	for count := 0; count < 2; count++ {
 		select {
 		case a := <-p.outA:
-			inputC.A = a
+			cData.a = a
 		case b := <-p.outB:
-			inputC.B = b
+			cData.b = b
 		case err := <-p.errs:
-			return CIn{}, err
+			return cIn{}, err
 		case <-ctx.Done():
-			return CIn{}, ctx.Err()
+			return cIn{}, ctx.Err()
 		}
 	}
-	return inputC, nil
+	return cData, nil
 }
 
-type AOut struct {
+type aOut struct {
 }
 
-type BOut struct {
+type bOut struct {
 }
 
-type CIn struct {
-	A AOut
-	B BOut
+type cIn struct {
+	a aOut
+	b bOut
 }
 
-func getResultA(ctx context.Context, in string) (AOut, error) {
-	return AOut{}, nil
+func getResultA(ctx context.Context, in string) (aOut, error) {
+	return aOut{}, nil
 }
 
-func getResultB(ctx context.Context, in string) (BOut, error) {
-	return BOut{}, nil
+func getResultB(ctx context.Context, in string) (bOut, error) {
+	return bOut{}, nil
 }
